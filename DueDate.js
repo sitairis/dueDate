@@ -3,7 +3,7 @@ let moment = require('moment');
 let WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
 let TEMPLATES = {
-    date : 'YYYY-MM-D',
+    date : 'YYYY-MM-DD',
     time : 'HH:mm'
 };
 
@@ -108,7 +108,7 @@ function generateDateCod(state, day, time) {
 }
 
 
-let dueDate = new DueDate(generateDateCod('next', 'Mo', '21:14'));
+let dueDate = new DueDate(generateDateCod('next', 'Mo', '07:03'));
 console.log(dueDate.date); // 2018-02-19
 console.log(dueDate.time); // 21:14
 console.log(dueDate.nextDay); // 2018-02-20
