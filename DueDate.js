@@ -100,7 +100,7 @@ function isString(str) {
  * @param time
  * @returns {Object}
  */
-function generateDateCod(state, day, time) {
+function generateDateOptions(state, day, time) {
     if (!state || !day) throw new Error(`Нет state = ${state}, day = ${day}`);
     if (!isString(state) || !isString(day)) throw new Error(`Не строка state = ${state}, day = ${day}`);
 
@@ -108,7 +108,7 @@ function generateDateCod(state, day, time) {
 }
 
 
-let dueDate = new DueDate(generateDateCod('next', 'Mo', '07:03'));
+let dueDate = new DueDate(generateDateOptions('next', 'Mo', '07:03'));
 console.log(dueDate.date); // 2018-02-19
 console.log(dueDate.time); // 21:14
 console.log(dueDate.nextDay); // 2018-02-20
@@ -117,7 +117,7 @@ console.log(dueDate.nextHour); // 22:14
 console.log(dueDate.previousHour); // 20;14
 
 
-let dueDate2 = new DueDate(generateDateCod('current', 'Mo'));
+let dueDate2 = new DueDate(generateDateOptions('current', 'Mo'));
 console.log(dueDate2.date); // 2018-02-12
 console.log(dueDate2.time); // null
 console.log(dueDate2.nextDay); // 2018-02-13
