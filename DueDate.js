@@ -4,7 +4,7 @@ let WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
 let TEMPLATES = {
     date : 'YYYY-MM-D',
-    time : 'H:m'
+    time : 'HH:mm'
 };
 
 class DueDate {
