@@ -1,97 +1,83 @@
 let moment = require('moment');
 
-let WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+let WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 let TEMPLATES = {
     date : 'YYYY-MM-DD',
-    time : 'HH:mm'
+    time : 'HH:mm',
+    shW: 'w',//двиг по неделям
+    shD: 'd', //сдвиг по дням
+    shH: 'h',//сдвиг по часам
+    weekDay: 'dddd'//формат для дней недели
 };
 
 class DueDate {
-    constructor(dateOptions) {
-        if (!dateOptions) throw new Error('Нет dateOptions');
-        if (typeof dateOptions !== 'object') throw new Error('Не объект');
+    constructor({date, time}) {
+        if (!date) throw new Error('Нет date');
 
-        this._date = dateOptions.date;
+        this._date = date;
 
-        this._time = dateOptions.time ? dateOptions.time : null;
+        this._time = time;
+
+        this._currentWeekDay = moment().format(TEMPLATES.weekDay);//Friday
+        this._currentTime = moment().format(TEMPLATES.time);//21:58
+    }
+
+    get currentWeekDay() {
+        return this._currentWeekDay;
+    }
+
+    get currentTime() {
+        return this._currentTime;
     }
 
     get date() {
-        return this.parseDate(this._date);
-    }
-
-    get time() {
-        return this.parseTime(this._time);
-    }
-
-    get nextDay() {
-        return moment(this.date, TEMPLATES.date).add(1, 'd').format(TEMPLATES.date);
-    }
-
-    get previousDay() {
-        return moment(this.date, TEMPLATES.date).add(-1, 'd').format(TEMPLATES.date);
-    }
-
-    get nextHour() {
-        return this.time ? moment(this.time, TEMPLATES.time).add(1, 'h').format(TEMPLATES.time) : null;
-    }
-
-    get previousHour() {
-        return this.time ? moment(this.time, TEMPLATES.time).add(-1, 'h').format(TEMPLATES.time) : null;
-    }
-
-    /**
-     *
-     * @returns {string}
-     */
-    currentDay() {
-        return moment().format('dd');//Fr
-    }
-
-    /**
-     *
-     * @returns {string}
-     */
-    currentTime() {
-        return moment().format(TEMPLATES.time);//21:58
-    }
-
-    /**
-     *
-     * @param date
-     * @returns {string}
-     */
-    parseDate(date) {
-        let options = date.split('-week-');
+        let options = this._date.split('-week-');
         let weekShift = 0;
 
         if (options[0] === 'previous') weekShift = -1;
         if (options[0] === 'next') weekShift = 1;
 
-        let dayShift = WEEKDAYS.indexOf(options[1]) - WEEKDAYS.indexOf(this.currentDay());
+        let dayShift = WEEKDAYS.indexOf(options[1]) - WEEKDAYS.indexOf(this.currentWeekDay.toLowerCase());
 
-        return moment().add(weekShift, "w").add(dayShift, 'd').format(TEMPLATES.date);
+        return moment().add(weekShift, TEMPLATES.shW)
+            .add(dayShift, TEMPLATES.shD)
+            .format(TEMPLATES.date);
     }
 
-    /**
-     *
-     * @param time
-     * @returns {*}
-     */
-    parseTime(time) {
-        if (time) {
-            return time === 'current' ? this.currentTime() : time;
+    get time() {
+        if (this._time){
+            return this._time === 'current' ? this.currentTime : this._time;
         }
         return null;
     }
+
+    get nextDay() {
+        return this.shiftDate(this.date, TEMPLATES.date, 1, TEMPLATES.shD);
+    }
+
+    get previousDay() {
+        return this.shiftDate(this.date, TEMPLATES.date, -1, TEMPLATES.shD);
+    }
+
+    get nextHour() {
+        return this.shiftDate(this.time, TEMPLATES.time, 1, TEMPLATES.shH);
+    }
+
+    get previousHour() {
+        return this.shiftDate(this.time, TEMPLATES.time, -1, TEMPLATES.shH);
+    }
+
+    shiftDate(time, templ, count, key){
+        return time ? moment(time, templ).add(count, key).format(templ): null;
+    }
+
 }
 
 
 function isString(str) {
     return typeof str === 'string';
 }
-
 
 /**
  * state = 'previous'|'current'|'next', day = WEEKDAYS, time = 'current' || '13:45'
@@ -108,19 +94,29 @@ function generateDateOptions(state, day, time) {
 }
 
 
-let dueDate = new DueDate(generateDateOptions('next', 'Mo', '07:03'));
-console.log(dueDate.date); // 2018-02-19
-console.log(dueDate.time); // 21:14
-console.log(dueDate.nextDay); // 2018-02-20
-console.log(dueDate.previousDay); // 2018-02-18
-console.log(dueDate.nextHour); // 22:14
-console.log(dueDate.previousHour); // 20;14
+let dueDate = new DueDate(generateDateOptions('next', 'thursday', '07:03'));
+console.log(dueDate.date); // 2018-03-01
+console.log(dueDate.time); // 07:03
+console.log(dueDate.nextDay); // 2018-03-02
+console.log(dueDate.previousDay); // 2018-02-28
+console.log(dueDate.nextHour); // 08:03
+console.log(dueDate.previousHour); // 06:03
+console.log('---------------------------');
 
-
-let dueDate2 = new DueDate(generateDateOptions('current', 'Mo'));
-console.log(dueDate2.date); // 2018-02-12
+let dueDate2 = new DueDate(generateDateOptions('current', 'thursday'));
+console.log(dueDate2.date); // 2018-03-01
 console.log(dueDate2.time); // null
-console.log(dueDate2.nextDay); // 2018-02-13
-console.log(dueDate2.previousDay); // 2018-02-06
+console.log(dueDate2.nextDay); // 2018-03-02
+console.log(dueDate2.previousDay); // 2018-02-28
 console.log(dueDate2.nextHour); // null
 console.log(dueDate2.previousHour); // null
+console.log('---------------------------');
+
+let dueDate3 = new DueDate(generateDateOptions('current', 'thursday', 'current'));
+console.log(dueDate3.date);
+console.log(dueDate3.time);
+console.log(dueDate3.nextDay);
+console.log(dueDate3.previousDay);
+console.log(dueDate3.nextHour);
+console.log(dueDate3.previousHour);
+console.log('---------------------------');
