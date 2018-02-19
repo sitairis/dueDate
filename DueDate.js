@@ -38,7 +38,7 @@ class DueDate {
         if (options[0] === 'previous') weekShift = -1;
         if (options[0] === 'next') weekShift = 1;
 
-        let dayShift = WEEKDAYS.indexOf(options[1]) - WEEKDAYS.indexOf(this.currentWeekDay.toLowerCase());
+        let dayShift = WEEKDAYS.indexOf(options[1]) - WEEKDAYS.indexOf(this.currentWeekDay.toLowerCase());//к нижнему регистру
 
         return moment().add(weekShift, TEMPLATES.shW)
             .add(dayShift, TEMPLATES.shD)
